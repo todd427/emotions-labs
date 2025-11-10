@@ -1,15 +1,20 @@
 
+#!/usr/bin/env python3
+"""
+emowatch.py — emotional health monitor for chat logs (VADER-based)
+Only analyzes user messages, filters technical noise, scores emotions, and detects escalation spikes.
+"""
+
 import json
 import pandas as pd
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 from datetime import datetime, timedelta
 import argparse
+import os
 
-# Initialize sentiment analyzer
 analyzer = SentimentIntensityAnalyzer()
 
 def is_technical_noise(text):
-    # Heuristic to skip terminal output, code snippets, or unhelpful logs
     return (
         any(token in text for token in ['Traceback', '.py', '.cpp', '.sh', '.so', 'File "', 'import ', 'nvcc', '/home/', 'pts/', '$', '>>>', '#include']) or
         text.count('\n') > 3 or
@@ -20,17 +25,24 @@ def load_and_filter(jsonl_path):
     rows = []
     with open(jsonl_path, 'r') as f:
         for line in f:
-            msg = json.loads(line)
+            try:
+                msg = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+
             if msg.get('role') != 'user':
                 continue
+
             content = msg.get('content', '')
             if is_technical_noise(content):
                 continue
+
             ts = msg.get('timestamp')
             try:
                 ts = datetime.fromtimestamp(float(ts)) if isinstance(ts, (int, float)) else pd.to_datetime(ts)
             except Exception:
                 continue
+
             scores = analyzer.polarity_scores(content)
             if scores['compound'] <= -0.4:
                 rows.append({
@@ -43,6 +55,15 @@ def load_and_filter(jsonl_path):
                     'pos': scores['pos']
                 })
     return pd.DataFrame(rows)
+
+def suggest_intervention(count):
+    if count >= 5:
+        return "🔴 Intense negativity detected. Recommend human review, rest, or journaling."
+    elif count == 4:
+        return "🟠 High negativity. Suggest taking a short break or switching context."
+    elif count == 3:
+        return "🟡 Mild spike. Offer grounding or motivational prompt."
+    return ""
 
 def detect_escalation(df, window_minutes=15, spike_threshold=3):
     df = df.copy()
@@ -59,7 +80,8 @@ def detect_escalation(df, window_minutes=15, spike_threshold=3):
                 'start': start_time,
                 'end': end_time,
                 'count': len(window_df),
-                'sample': window_df.head(1)['content'].values[0]
+                'sample': window_df.head(1)['content'].values[0],
+                'suggestion': suggest_intervention(len(window_df))
             })
     return pd.DataFrame(spikes).drop_duplicates()
 
@@ -78,7 +100,7 @@ def main():
     spikes_df = detect_escalation(df)
     if not spikes_df.empty:
         spikes_df.to_csv(args.spikes, index=False)
-        print(f"🚨 Detected {len(spikes_df)} emotional spikes → saved to {args.spikes}")
+        print(f"🚨 {len(spikes_df)} emotional spikes saved to {args.spikes}")
     else:
         print("✅ No escalation spikes detected.")
 

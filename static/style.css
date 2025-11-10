@@ -1,0 +1,118 @@
+/* ==========================================================================
+   Emotion-Labs Viewer Theme
+   Dark, legible, and grid-friendly
+   ========================================================================== */
+
+/* Base layout */
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: #0b0c10;       /* deep gray-black background */
+  color: #e5e7eb;            /* light neutral text */
+  margin: 0;
+  padding: 2rem;
+  line-height: 1.5;
+}
+
+/* Header */
+h1 {
+  color: #66fcf1;            /* cyan accent */
+  margin-bottom: 0.5rem;
+}
+
+p {
+  color: #d1d5db;
+  margin-top: 0;
+  margin-bottom: 0.8rem;
+}
+
+b {
+  color: #8af49c;
+}
+
+/* Link styling */
+a {
+  color: #5cc6ff;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+/* Grid of cards */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1rem;
+}
+
+/* Individual emotion card */
+.card {
+  background: #1a1d24;       /* slightly raised from background */
+  color: #f3f4f6;
+  border: 1px solid #2f3542;
+  border-radius: 12px;
+  padding: 1.2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  transition: transform 0.1s ease-in-out, box-shadow 0.2s;
+}
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.65);
+}
+
+/* Headings inside cards */
+.card h3 {
+  color: #5cc6ff;
+  font-weight: 600;
+  margin-top: 0;
+  margin-bottom: 0.5em;
+}
+
+/* Paragraph text in cards */
+.card p {
+  margin: 0.4em 0;
+  line-height: 1.4;
+}
+
+/* Recommendation text */
+.card b {
+  color: #9fff9c;
+  display: block;
+  margin-top: 0.5em;
+}
+
+/* Divider line between header info */
+hr {
+  border: 0;
+  border-top: 1px solid #2f3542;
+  margin: 1.5rem 0;
+}
+
+/* Responsive tweaks */
+@media (max-width: 600px) {
+  body {
+    padding: 1rem;
+  }
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Subtle scrollbar styling */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #0b0c10;
+}
+::-webkit-scrollbar-thumb {
+  background: #2f3542;
+  border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3c4454;
+}
+
+/* ========================================================================== */
+
